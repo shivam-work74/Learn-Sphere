@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Socket.IO Test Client</title>
+  <style>
+    body { font-family: sans-serif; padding: 1em; }
+    #messages { border: 1px solid #ccc; padding: 1em; height: 300px; overflow-y: scroll; margin-bottom: 1em; }
+    input { padding: 0.5em; width: 200px; }
+    button { padding: 0.5em; }
+  </style>
+</head>
+<body>
+  <h1>Socket.IO Chat Test</h1>
+  <p>Status: <span id="status">Connecting...</span></p>
+
+  <div>
+    <input type="text" id="courseIdInput" placeholder="Enter Course ID" value="course123" />
+    <button onclick="joinRoom()">Join Room</button>
+  </div>
+  <hr style="margin: 1em 0;">
+  <div id="chat-area" style="display: none;">
+    <div id="messages"></div>
+    <form onsubmit="sendMessage(event)">
+      <input type="text" id="messageInput" placeholder="Enter message" autocomplete="off" />
+      <button type="submit">Send</button>
+    </form>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script>
+    const socket = io('http://localhost:5000');
+    const statusEl = document.getElementById('status');
+    const courseIdInput = document.getElementById('courseIdInput');
+    const messageInput = document.getElementById('messageInput');
+    const messagesEl = document.getElementById('messages');
+    const chatArea = document.getElementById('chat-area');
+    let currentRoom = '';
+
+    socket.on('connect', () => {
+      statusEl.textContent = 'Connected!';
+      statusEl.style.color = 'green';
+    });
+    
+    // Listen for incoming messages from the server
+    socket.on('receiveMessage', (data) => {
+      const messageElement = document.createElement('div');
+      messageElement.innerHTML = `<strong>${data.sender.name}:</strong> ${data.message}`;
+      messagesEl.appendChild(messageElement);
+      messagesEl.scrollTop = messagesEl.scrollHeight; // Auto-scroll
+    });
+
+    function joinRoom() {
+      currentRoom = courseIdInput.value;
+      if (currentRoom) {
+        socket.emit('joinRoom', currentRoom);
+        alert(`Joined room: ${currentRoom}`);
+        chatArea.style.display = 'block';
+      } else {
+        alert('Please enter a Course ID.');
+      }
+    }
+
+    function sendMessage(event) {
+      event.preventDefault();
+      const message = messageInput.value;
+      if (message && currentRoom) {
+        const messageData = {
+          courseId: currentRoom,
+          message: message,
+          sender: { name: 'TestUser' } // In our real app, this will be the logged-in user
+        };
+        socket.emit('sendMessage', messageData);
+        messageInput.value = '';
+      }
+    }
+  </script>
+</body>
+</html>

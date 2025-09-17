@@ -21,7 +21,7 @@ const server = http.createServer(app);
 
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://learn-sphere-ten.vercel.app/'
+  'https://learn-sphere-ten.vercel.app'
 ];
 
 const io = new Server(server, { cors: { origin: "*", methods: ["GET", "POST"] } });

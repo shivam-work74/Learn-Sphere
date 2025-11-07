@@ -1,0 +1,20 @@
+{
+  "name": "learnsphere",
+  "version": "1.0.0",
+  "description": "LearnSphere - A Learning Management System",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
+    "start": "node backend/server.js",
+    "backend": "npm run dev --prefix backend",
+    "frontend": "npm run dev --prefix frontend",
+    "build": "npm run build --prefix frontend",
+    "build:full": "npm run build --prefix frontend && echo 'Frontend built successfully'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}

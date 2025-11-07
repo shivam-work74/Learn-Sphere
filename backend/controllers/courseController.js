@@ -4,14 +4,10 @@ const Quiz = require('../models/Quiz'); // 1. Import the Quiz model
 
 const getCourses = async (req, res) => {
   try {
-    // First, let's log what's in the database
-    const allCourses = await Course.find({});
-    console.log('All courses in DB:', allCourses);
-    
-    // Then try to populate instructor info
+    console.log('Fetching courses from database...');
     const courses = await Course.find({}).populate('instructor', 'name');
-    console.log('Courses with populated instructors:', courses);
-    
+    console.log(`Found ${courses.length} courses`);
+    console.log('Courses data:', JSON.stringify(courses, null, 2));
     res.json(courses);
   } catch (error) { 
     console.error('Error fetching courses:', error);

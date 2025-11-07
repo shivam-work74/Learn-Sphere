@@ -25,12 +25,14 @@ function CoursesPage() {
       try {
         console.log('Fetching courses from:', API.defaults.baseURL);
         // 2. Use 'API' for the request
-        const { data } = await API.get('/api/courses');
-        console.log('Courses data received:', data);
-        setCourses(data);
+        const response = await API.get('/api/courses');
+        console.log('Courses response:', response);
+        setCourses(response.data);
+        setError('');
       } catch (err) {
         console.error('Error fetching courses:', err);
-        setError('Failed to load courses: ' + (err.response?.data?.message || err.message));
+        console.error('Error response:', err.response);
+        setError('Failed to load courses: ' + (err.response?.data?.message || err.message || 'Unknown error'));
       } finally {
         setTimeout(() => setLoading(false), 500);
       }

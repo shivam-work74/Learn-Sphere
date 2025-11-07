@@ -29,6 +29,7 @@ export const AuthProvider = ({ children }) => {
           'Content-Type': 'application/json',
         },
       };
+      console.log('Logging in with API base URL:', API.defaults.baseURL);
       // 2. Use 'API' for the request
       const { data } = await API.post(
         '/api/auth/login',
@@ -48,7 +49,8 @@ export const AuthProvider = ({ children }) => {
       }
       
     } catch (error) {
-      throw error.response.data.message || 'An error occurred';
+      console.error('Login error:', error);
+      throw error.response?.data?.message || error.message || 'An error occurred';
     }
   };
 
@@ -79,7 +81,8 @@ export const AuthProvider = ({ children }) => {
       }
 
     } catch (error) {
-      throw error.response.data.message || 'An error occurred';
+      console.error('Registration error:', error);
+      throw error.response?.data?.message || error.message || 'An error occurred';
     }
   };
 

@@ -4,9 +4,19 @@ const Quiz = require('../models/Quiz'); // 1. Import the Quiz model
 
 const getCourses = async (req, res) => {
   try {
+    // First, let's log what's in the database
+    const allCourses = await Course.find({});
+    console.log('All courses in DB:', allCourses);
+    
+    // Then try to populate instructor info
     const courses = await Course.find({}).populate('instructor', 'name');
+    console.log('Courses with populated instructors:', courses);
+    
     res.json(courses);
-  } catch (error) { res.status(500).json({ message: 'Server Error' }); }
+  } catch (error) { 
+    console.error('Error fetching courses:', error);
+    res.status(500).json({ message: 'Server Error', error: error.message }); 
+  }
 };
 
 const getCourseById = async (req, res) => {
@@ -14,7 +24,10 @@ const getCourseById = async (req, res) => {
     const course = await Course.findById(req.params.id).populate('instructor', 'name');
     if (course) { res.json(course); } 
     else { res.status(404).json({ message: 'Course not found' }); }
-  } catch (error) { res.status(500).json({ message: 'Server Error' }); }
+  } catch (error) { 
+    console.error('Error fetching course by ID:', error);
+    res.status(500).json({ message: 'Server Error', error: error.message }); 
+  }
 };
 
 const createCourse = async (req, res) => {
@@ -23,14 +36,20 @@ const createCourse = async (req, res) => {
     const course = new Course({ title, description, imageUrl, instructor: req.user._id });
     const createdCourse = await course.save();
     res.status(201).json(createdCourse);
-  } catch (error) { res.status(500).json({ message: 'Server Error' }); }
+  } catch (error) { 
+    console.error('Error creating course:', error);
+    res.status(500).json({ message: 'Server Error', error: error.message }); 
+  }
 };
 
 const getMyCourses = async (req, res) => {
   try {
     const courses = await Course.find({ instructor: req.user._id });
     res.json(courses);
-  } catch (error) { res.status(500).json({ message: 'Server Error' }); }
+  } catch (error) { 
+    console.error('Error fetching my courses:', error);
+    res.status(500).json({ message: 'Server Error', error: error.message }); 
+  }
 };
 
 const updateCourse = async (req, res) => {
@@ -44,7 +63,10 @@ const updateCourse = async (req, res) => {
       const updatedCourse = await course.save();
       res.json(updatedCourse);
     } else { res.status(404).json({ message: 'Course not found' }); }
-  } catch (error) { res.status(500).json({ message: 'Server Error' }); }
+  } catch (error) { 
+    console.error('Error updating course:', error);
+    res.status(500).json({ message: 'Server Error', error: error.message }); 
+  }
 };
 
 const addLesson = async (req, res) => {
@@ -57,7 +79,10 @@ const addLesson = async (req, res) => {
       await course.save();
       res.status(201).json(course);
     } else { res.status(404).json({ message: 'Course not found' }); }
-  } catch (error) { res.status(500).json({ message: 'Server Error' }); }
+  } catch (error) { 
+    console.error('Error adding lesson:', error);
+    res.status(500).json({ message: 'Server Error', error: error.message }); 
+  }
 };
 
 const updateLesson = async (req, res) => {
@@ -74,7 +99,10 @@ const updateLesson = async (req, res) => {
         res.json(course);
       } else { res.status(404).json({ message: 'Lesson not found' }); }
     } else { res.status(404).json({ message: 'Course not found' }); }
-  } catch (error) { res.status(500).json({ message: 'Server Error' }); }
+  } catch (error) { 
+    console.error('Error updating lesson:', error);
+    res.status(500).json({ message: 'Server Error', error: error.message }); 
+  }
 };
 
 const deleteLesson = async (req, res) => {
@@ -88,7 +116,10 @@ const deleteLesson = async (req, res) => {
         res.json({ message: 'Lesson removed' });
       } else { res.status(404).json({ message: 'Lesson not found' }); }
     } else { res.status(404).json({ message: 'Course not found' }); }
-  } catch (error) { res.status(500).json({ message: 'Server Error' }); }
+  } catch (error) { 
+    console.error('Error deleting lesson:', error);
+    res.status(500).json({ message: 'Server Error', error: error.message }); 
+  }
 };
 
 // --- NEW FUNCTION MERGED IN ---
@@ -97,7 +128,8 @@ const getQuizzesForCourse = async (req, res) => {
     const quizzes = await Quiz.find({ course: req.params.courseId }).select('title');
     res.json(quizzes);
   } catch (error) {
-    res.status(500).json({ message: 'Server Error' });
+    console.error('Error fetching quizzes:', error);
+    res.status(500).json({ message: 'Server Error', error: error.message });
   }
 }
 

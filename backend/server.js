@@ -25,8 +25,13 @@ const allowedOrigins = [
   'http://localhost:3000',
   'https://learnsphere-dusky.vercel.app',
   // Add your production frontend URL here
-  process.env.FRONTEND_URL || 'http://localhost:5173'
+  process.env.FRONTEND_URL || 'https://learn-sphere-seven-pi.vercel.app/'
 ];
+
+// Add your Vercel production URL to allowed origins
+if (process.env.FRONTEND_PROD_URL) {
+  allowedOrigins.push(process.env.FRONTEND_PROD_URL);
+}
 
 const corsOptions = {
   origin: function (origin, callback) {

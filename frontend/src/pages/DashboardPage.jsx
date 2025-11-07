@@ -1,68 +1,65 @@
 // src/pages/DashboardPage.js
-import React, { useState, useEffect } from 'react'; // This line is now corrected
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import API from '../api/axios'; // Use our configured API client instead of raw axios
 import { useAuth } from '../context/AuthContext';
+import { FaHome, FaBook, FaChalkboardTeacher, FaUser, FaCog, FaChartLine, FaUserEdit, FaPlusCircle } from 'react-icons/fa';
+import { motion } from 'framer-motion';
 import CourseCard from '../components/CourseCard';
 import SkeletonCard from '../components/SkeletonCard';
-import { Link } from 'react-router-dom';
-import { FaBook, FaUserEdit, FaCog, FaPlusCircle, FaCheckCircle, FaCertificate } from 'react-icons/fa';
-import CountUp from 'react-countup';
 
 function DashboardPage() {
   const { user } = useAuth();
   const [enrolledCourses, setEnrolledCourses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [completedCoursesCount, setCompletedCoursesCount] = useState(0);
 
   useEffect(() => {
     const fetchEnrolledCourses = async () => {
-      if (user) {
-        try {
-          const config = { headers: { Authorization: `Bearer ${user.token}` } };
-          const { data } = await axios.get('/api/users/my-courses', config);
-          setEnrolledCourses(data);
-
-          let completedCount = 0;
-          data.forEach(course => {
-            const courseProgress = user.progress?.find(p => p.courseId === course._id);
-            if (courseProgress) {
-              const totalLessons = course.lessons?.length || 0;
-              const completedLessons = courseProgress.completedLessons?.length || 0;
-              if (totalLessons > 0 && completedLessons === totalLessons) {
-                completedCount++;
-              }
-            }
-          });
-          setCompletedCoursesCount(completedCount);
-
-        } catch (error) {
-          console.error('Failed to fetch enrolled courses');
-        } finally {
-          setTimeout(() => setLoading(false), 500);
-        }
+      try {
+        const config = { headers: { Authorization: `Bearer ${user.token}` } };
+        // Use API.get instead of axios.get
+        const { data } = await API.get('/api/courses/enrolled', config);
+        setEnrolledCourses(data);
+      } catch (error) {
+        console.error('Failed to fetch enrolled courses');
+      } finally {
+        setLoading(false);
       }
     };
-    fetchEnrolledCourses();
+
+    if (user) {
+      fetchEnrolledCourses();
+    }
   }, [user]);
 
   const stats = [
-    { title: 'Courses Enrolled', value: enrolledCourses.length, icon: FaBook, color: 'text-blue-500' },
-    { title: 'Courses Completed', value: completedCoursesCount, icon: FaCheckCircle, color: 'text-green-500' },
-    { title: 'Certificates Earned', value: 0, icon: FaCertificate, color: 'text-yellow-500' },
+    { icon: FaBook, value: enrolledCourses.length, label: 'Enrolled Courses', color: 'text-blue-500' },
+    { icon: FaChartLine, value: '85%', label: 'Avg. Progress', color: 'text-green-500' },
+    { icon: FaChalkboardTeacher, value: '12', label: 'Hours Learned', color: 'text-purple-500' },
+    { icon: FaUser, value: '3', label: 'Certificates', color: 'text-yellow-500' },
   ];
 
   return (
-    <div className="flex bg-gray-100 dark:bg-gray-900 min-h-full">
-      <aside className="hidden md:flex flex-col w-64 bg-white dark:bg-gray-800 shadow-lg">
-        <div className="flex items-center justify-center h-20 border-b dark:border-gray-700">
-          <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            LearnSphere
-          </Link>
+    <div className="flex flex-col md:flex-row min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Sidebar */}
+      <aside className="w-full md:w-64 bg-white dark:bg-gray-800 shadow-md p-6">
+        <div className="mb-10">
+          <h1 className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">LearnSphere</h1>
+          <p className="text-gray-600 dark:text-gray-400 text-sm">Empowering Learners</p>
         </div>
-        <nav className="flex-grow p-4">
-          <Link to="/dashboard" className="flex items-center p-3 my-2 text-gray-700 dark:text-gray-100 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg font-semibold">
-            <FaBook className="mr-3 text-indigo-600" />
-            My Courses
+        
+        <nav>
+          <Link to="/dashboard" className="flex items-center p-3 my-2 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 rounded-lg transition-colors duration-200">
+            <FaHome className="mr-3" />
+            Dashboard
+          </Link>
+          <Link to="/courses" className="flex items-center p-3 my-2 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200">
+            <FaBook className="mr-3" />
+            Browse Courses
+          </Link>
+          <Link to="/instructor" className="flex items-center p-3 my-2 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200">
+            <FaChalkboardTeacher className="mr-3" />
+            Instructor
           </Link>
           <Link to="/profile" className="flex items-center p-3 my-2 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200">
             <FaUserEdit className="mr-3" />
@@ -89,9 +86,11 @@ function DashboardPage() {
               </div>
               <div>
                 <p className="text-3xl font-bold text-gray-800 dark:text-white">
-                  {loading ? '...' : <CountUp end={stat.value} duration={2} />}
+                  <motion.span initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>
+                    {stat.value}
+                  </motion.span>
                 </p>
-                <p className="text-gray-500 dark:text-gray-400">{stat.title}</p>
+                <p className="text-gray-600 dark:text-gray-400">{stat.label}</p>
               </div>
             </div>
           ))}
@@ -121,16 +120,10 @@ function DashboardPage() {
               })}
             </div>
           ) : (
-            <div className="text-center py-10 px-6">
-              <img 
-                src="https://res.cloudinary.com/demo/image/upload/v1642601704/undraw_road_to_knowledge_m8s0.svg" 
-                alt="No courses" 
-                className="w-1/2 md:w-1/3 mx-auto mb-6"
-              />
-              <h3 className="text-xl font-bold text-gray-800 dark:text-white">Your learning journey awaits!</h3>
-              <p className="text-gray-500 dark:text-gray-400 mt-2 mb-6">You are not yet enrolled in any courses.</p>
-              <Link to="/courses" className="bg-indigo-600 text-white font-semibold py-2 px-5 rounded-lg hover:bg-indigo-700 transition-colors duration-300">
-                Explore Courses
+            <div className="text-center p-10 text-gray-500 dark:text-gray-400">
+              <p>You haven't enrolled in any courses yet.</p>
+              <Link to="/courses" className="mt-4 inline-block text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">
+                Browse Courses
               </Link>
             </div>
           )}

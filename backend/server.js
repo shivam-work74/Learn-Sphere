@@ -25,7 +25,7 @@ const allowedOrigins = [
   'http://localhost:3000',
   'https://learnsphere-dusky.vercel.app',
   // Add your production frontend URL here
-  process.env.FRONTEND_URL || 'https://learn-sphere-seven-pi.vercel.app/'
+  process.env.FRONTEND_PROD_URL || 'https://learn-sphere-seven-pi.vercel.app/'
 ];
 
 // Add your Vercel production URL to allowed origins

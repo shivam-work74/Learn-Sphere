@@ -1,7 +1,7 @@
 // src/pages/CreateCoursePage.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import API from '../api/axios'; // Use our configured API client instead of raw axios
 import { useAuth } from '../context/AuthContext';
 
 function CreateCoursePage() {
@@ -27,8 +27,9 @@ function CreateCoursePage() {
         },
       };
 
-      const { data } = await axios.post(
-        'http://localhost:5000/api/courses',
+      // Use API.post instead of axios.post and remove the hardcoded base URL
+      const { data } = await API.post(
+        '/api/courses',
         { title, description, imageUrl },
         config
       );

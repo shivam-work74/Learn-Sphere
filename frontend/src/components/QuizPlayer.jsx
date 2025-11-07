@@ -1,6 +1,6 @@
 // src/components/QuizPlayer.js
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../api/axios'; // Use our configured API client instead of raw axios
 import { useAuth } from '../context/AuthContext';
 
 function QuizPlayer({ quizId }) {
@@ -14,7 +14,8 @@ function QuizPlayer({ quizId }) {
     const fetchQuiz = async () => {
       try {
         const config = { headers: { Authorization: `Bearer ${user.token}` } };
-        const { data } = await axios.get(`/api/quizzes/${quizId}`, config);
+        // Use API.get instead of axios.get
+        const { data } = await API.get(`/api/quizzes/${quizId}`, config);
         setQuiz(data);
       } catch (error) { console.error("Failed to fetch quiz"); } 
       finally { setLoading(false); }
@@ -29,7 +30,8 @@ function QuizPlayer({ quizId }) {
   const handleSubmit = async () => {
     try {
       const config = { headers: { Authorization: `Bearer ${user.token}` } };
-      const { data } = await axios.post(`/api/quizzes/${quizId}/submit`, { answers }, config);
+      // Use API.post instead of axios.post
+      const { data } = await API.post(`/api/quizzes/${quizId}/submit`, { answers }, config);
       setResult(data);
     } catch (error) { alert("Failed to submit quiz."); }
   };

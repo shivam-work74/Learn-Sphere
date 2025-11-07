@@ -1,85 +1,132 @@
 // src/pages/HomePage.js
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
-import CourseCard from '../components/CourseCard';
-import { FaChalkboardTeacher, FaLaptopCode, FaQuestionCircle } from 'react-icons/fa';
+import API from '../api/axios'; // Use our configured API client instead of raw axios
+import { useAuth } from '../context/AuthContext';
+import { FaBookOpen, FaClock, FaQuestionCircle, FaStar, FaGraduationCap, FaChalkboardTeacher } from 'react-icons/fa';
 import { motion } from 'framer-motion';
+import CourseCard from '../components/CourseCard';
 
 function HomePage() {
+  const { user } = useAuth();
   const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const { data } = await axios.get('/api/courses');
+        // Use API.get instead of axios.get
+        const { data } = await API.get('/api/courses');
+        // Get only the first 3 courses for the featured section
         setCourses(data.slice(0, 3));
       } catch (err) {
         console.error('Failed to load courses.');
+      } finally {
+        setLoading(false);
       }
     };
     fetchCourses();
   }, []);
 
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1
+    }
+  };
+
   return (
-    // Added dark mode background
     <div className="bg-gray-50 dark:bg-gray-900">
       {/* Hero Section */}
-      <motion.section 
-        className="relative bg-gradient-to-r from-indigo-800 to-purple-600 text-white text-center py-20 md:py-32"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1 }}
-      >
-        <div className="container mx-auto px-4">
-          <motion.h1 
-            className="text-4xl md:text-6xl font-extrabold drop-shadow-lg"
-            initial={{ y: -50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            Learn Without Limits
-          </motion.h1>
-          <motion.p 
-            className="mt-4 text-lg md:text-xl text-indigo-200 max-w-2xl mx-auto"
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            Unlock your potential with expert-led courses. Start your learning journey with LearnSphere today and master new skills.
-          </motion.p>
+      <section className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+        <div className="container mx-auto px-4 py-20 md:py-28">
           <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.6 }}
+            className="max-w-3xl"
+            initial="hidden"
+            animate="visible"
+            variants={containerVariants}
           >
-            <Link to="/courses">
-              <button className="mt-8 bg-white text-indigo-600 font-bold py-3 px-8 rounded-full shadow-lg hover:bg-gray-200 transition-all duration-300 transform hover:scale-105">
-                Browse Courses
-              </button>
-            </Link>
+            <motion.h1 className="text-4xl md:text-6xl font-extrabold mb-6" variants={itemVariants}>
+              Unlock Your Potential with <span className="text-yellow-300">LearnSphere</span>
+            </motion.h1>
+            <motion.p className="text-xl mb-10 text-indigo-100" variants={itemVariants}>
+              Discover a world of knowledge with our expertly crafted courses. Learn at your own pace, anytime, anywhere.
+            </motion.p>
+            <motion.div className="flex flex-col sm:flex-row gap-4" variants={itemVariants}>
+              {user ? (
+                <Link to="/dashboard" className="bg-white text-indigo-600 font-bold py-3 px-8 rounded-full shadow-lg hover:bg-gray-100 transition duration-300 text-center">
+                  Go to Dashboard
+                </Link>
+              ) : (
+                <Link to="/register" className="bg-white text-indigo-600 font-bold py-3 px-8 rounded-full shadow-lg hover:bg-gray-100 transition duration-300 text-center">
+                  Join for Free
+                </Link>
+              )}
+              <Link to="/courses" className="bg-transparent border-2 border-white text-white font-bold py-3 px-8 rounded-full hover:bg-white hover:text-indigo-600 transition duration-300 text-center">
+                Explore Courses
+              </Link>
+            </motion.div>
           </motion.div>
         </div>
-      </motion.section>
+      </section>
+
+      {/* Stats Section */}
+      <section className="py-12 bg-white dark:bg-gray-800">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div>
+              <p className="text-4xl font-bold text-indigo-600 dark:text-indigo-400">10K+</p>
+              <p className="text-gray-600 dark:text-gray-400">Active Learners</p>
+            </div>
+            <div>
+              <p className="text-4xl font-bold text-indigo-600 dark:text-indigo-400">200+</p>
+              <p className="text-gray-600 dark:text-gray-400">Expert Courses</p>
+            </div>
+            <div>
+              <p className="text-4xl font-bold text-indigo-600 dark:text-indigo-400">50+</p>
+              <p className="text-gray-600 dark:text-gray-400">Instructors</p>
+            </div>
+            <div>
+              <p className="text-4xl font-bold text-indigo-600 dark:text-indigo-400">98%</p>
+              <p className="text-gray-600 dark:text-gray-400">Satisfaction Rate</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Features Section */}
       <section className="py-20">
         <div className="container mx-auto px-4">
-          {/* Added dark mode text color */}
-          <h2 className="text-3xl font-bold text-center text-gray-800 dark:text-white mb-12">Why Choose LearnSphere?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          <h2 className="text-3xl font-bold text-center text-gray-800 dark:text-white mb-4">Why Choose LearnSphere?</h2>
+          <p className="text-gray-600 dark:text-gray-400 text-center mb-12 max-w-2xl mx-auto">
+            We provide the tools and resources you need to achieve your learning goals.
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Feature 1 */}
             <div className="text-center">
               <div className="flex items-center justify-center h-16 w-16 bg-indigo-100 text-indigo-600 rounded-full mx-auto mb-4">
-                <FaChalkboardTeacher size={32} />
+                <FaBookOpen size={32} />
               </div>
               <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">Expert Instructors</h3>
-              <p className="text-gray-600 dark:text-gray-400">Learn from industry professionals who are passionate about teaching.</p>
+              <p className="text-gray-600 dark:text-gray-400">Learn from industry experts with years of practical experience.</p>
             </div>
             {/* Feature 2 */}
             <div className="text-center">
               <div className="flex items-center justify-center h-16 w-16 bg-indigo-100 text-indigo-600 rounded-full mx-auto mb-4">
-                <FaLaptopCode size={32} />
+                <FaClock size={32} />
               </div>
               <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">Flexible Learning</h3>
               <p className="text-gray-600 dark:text-gray-400">Access courses anytime, anywhere, and learn at your own pace.</p>
@@ -110,6 +157,25 @@ function HomePage() {
           </div>
         </section>
       )}
+
+      {/* CTA Section */}
+      <section className="py-20 bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">Start Your Learning Journey Today</h2>
+          <p className="text-xl mb-10 text-indigo-100 max-w-2xl mx-auto">
+            Join thousands of students who have transformed their careers with our courses.
+          </p>
+          {user ? (
+            <Link to="/dashboard" className="bg-white text-indigo-600 font-bold py-3 px-8 rounded-full shadow-lg hover:bg-gray-100 transition duration-300">
+              Continue Learning
+            </Link>
+          ) : (
+            <Link to="/register" className="bg-white text-indigo-600 font-bold py-3 px-8 rounded-full shadow-lg hover:bg-gray-100 transition duration-300">
+              Get Started for Free
+            </Link>
+          )}
+        </div>
+      </section>
     </div>
   );
 }

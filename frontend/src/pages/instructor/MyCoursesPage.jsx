@@ -1,6 +1,6 @@
 // src/pages/instructor/MyCoursesPage.js
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../../api/axios'; // Use our configured API client instead of raw axios
 import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
 
@@ -13,7 +13,8 @@ function MyCoursesPage() {
     const fetchMyCourses = async () => {
       try {
         const config = { headers: { Authorization: `Bearer ${user.token}` } };
-        const { data } = await axios.get('/api/courses/my-courses', config);
+        // Use API.get instead of axios.get
+        const { data } = await API.get('/api/courses/my-courses', config);
         setCourses(data);
       } catch (error) { console.error('Failed to fetch courses'); } 
       finally { setLoading(false); }
